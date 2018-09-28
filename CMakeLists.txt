@@ -3,4 +3,4 @@ project(Graph)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Graph main.cpp node.h graph.h edge.h read.h)
+add_executable(Graph main.cpp Graph.h)
