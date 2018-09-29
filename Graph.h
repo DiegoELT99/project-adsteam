@@ -6,6 +6,8 @@
 #define GRAPH_GRAPH_H
 #include <iostream>
 #include <cstdlib>
+#include <vector>
+#include <map>
 using namespace std;
 
 /*El archivo que lee este grafo sigue el formato:
@@ -17,90 +19,144 @@ using namespace std;
 
 struct Edge
 {
-    int data;
+    char start;
+    char final;
     int weight;
-    struct Edge* next;
+
 };
 
-struct List
-{
-    struct Edge* head;
-    struct Edge* tail;
-};
 
+//asume que el grafo es direccionado
 
 class Graph
 {
 private:
-
-public:
+    typedef map<char, vector<Edge>> adjList;
+    adjList graphmap;
     int vertices;
+    int edges;
     bool dir;
-    List* array;
+public:
 
-    Graph(int n, bool d)
+    Graph()
     {
-        vertices = n;
-        dir= d;
-        array = new List [n];
-        for (int i = 0; i < n; ++i) {
-            array[i].head = nullptr;
-            array[i].tail= nullptr;
-        }
-    }
+        vertices= 0;
+        edges=0;
+        dir= true;
 
-    void addEdge(int src, int dest, int w)
-    {
-        auto newNode = new Edge;
-        newNode->data= dest;
-        newNode->weight= w;
-        newNode->next= nullptr;
+    };
+    //Primero insertas nodos, luego los conectas. No es simultáneo.
 
+    void insertNode(char start){
 
-        if(array[src].head== nullptr) {
-            array[src].head = newNode;
-            array[src].tail= newNode;
-        } else {
-            array[src].tail->next= newNode;
-            array[src].tail= newNode;
-        }
+        vector<Edge> edges;
+        auto pair= make_pair(start, edges);
+        graphmap.insert(pair);
+        vertices++;
 
-        if(!dir){
-            auto newNode2 = new Edge;
-            newNode2->data= dest;
-            newNode2->weight= w;
-            newNode2->next= nullptr;
+    };
 
+    void addEdge(char start, char final, int weight) {
+        Edge edge{start, final, weight};
 
-            if(array[src].head== nullptr) {
-                array[src].head = newNode2;
-                array[src].tail= newNode2;
+        //asume que es direccionado
+        if (graphmap.count( start ) && graphmap.count( final )) {
+
+            if (graphmap[start].empty()) {
+                graphmap[start].push_back(edge);
             } else {
-                array[src].tail->next= newNode2;
-                array[src].tail= newNode2;
+                graphmap[start].push_back(edge);
             }
 
+            edges++;
+        }
+        else{
+            cout << "Primero debe insertar los nodos";
+        }
+    };
+
+    void removeEdge(char start, char final){
+        int i=0;
+        for (auto f: graphmap[start]){
+            if(f.final==final) graphmap[start].erase(graphmap[start].begin()+i);
+            i++;
+        }
+        edges--;
+    };
+
+    void removeNode(char start){
+        //para grafo no direccionado, saca todas las conexiones con un set y buscalas. No es necesario
+        //buscar en cada key si es no direccionado.
+        //asumiendo un grafo direccionado
+        graphmap.erase(start);
+        vertices--;
+        //borrando todos los edges que estén conectados a start
+
+        /*int j;
+        for (auto f: graphmap){
+            j=0;
+            for (auto i: f.second){
+                if(i.final == start) f.erase(f.begin()+j);
+                j++;
+            }
+        }*/
+        //revisar con ejemplo en el main, pero puedes obviarlo porque no hay multiples conexiones.
+        for (auto f: graphmap){
+        removeEdge(f.first, start);
         }
 
+
+
+    };
+
+    /* Qué utilidad tienen si puedo insertar como diccionario.
+    void findVertex(char start){
+
     }
-    /*
-     * Print the graph
+    void findEdge(char start, char edge){
+
+    }
      */
-    void printGraph()
-    {
-        int v;
-        for (v = 0; v < vertices; ++v)
-        {
-            Edge* tmp = array[v].head;		//tmp has the address of (0,1..)vertex head
-            cout<<"\n Adjacency list of vertex "<<v<<"\n head ";
-            while (tmp)
-            {
-                cout<<"-> "<<tmp->data;
-                tmp = tmp->next;
-            }
-            cout<<endl;
-        }
+
+    float density(){
+        //asumiendo dirigido
+        return (edges/(vertices*(vertices-1)));
     }
+    bool isDense(float x){
+        return density()>x;
+    }
+    bool isDisperse(float x){
+        return density()<x;
+    }
+
+    int vertex_grade(char start){
+        return graphmap[start].size();
+    }
+
+    //no sé los nombres correctos
+    bool is_root(char start){
+
+        //busca por todos los vectores. Si start no aparece como final ni una vez, retorna true
+        for (auto f: graphmap){
+            for (auto i: f.second){
+                if(i.final == start) return false;
+            }
+        }
+        return true;
+    }
+
+    bool is_leaf(char start){
+        return graphmap[start].empty();
+    }
+
+    //saber si es conexo, fuertemente conexo y bipartito
+
+    ~Graph(){
+        vertices=0;
+        edges=0;
+        graphmap.clear();
+    }
+
 };
 
 #endif //GRAPH_GRAPH_H
