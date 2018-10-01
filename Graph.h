@@ -101,6 +101,9 @@ public:
             }
         }*/
         //revisar con ejemplo en el main, pero puedes obviarlo porque no hay multiples conexiones.
+        //revisar con ejemplo en el main, pero puedes obviarlo porque no hay multiples conexiones.
+        //revisar con ejemplo en el main, pero puedes obviarlo porque no hay multiples conexiones.
+        //revisar con ejemplo en el main, pero puedes obviarlo porque no hay multiples conexiones.
         for (auto f: graphmap){
         removeEdge(f.first, start);
         }
@@ -109,14 +112,29 @@ public:
 
     };
 
-    /* Qué utilidad tienen si puedo insertar como diccionario.
-    void findVertex(char start){
 
-    }
-    void findEdge(char start, char edge){
+    bool findVertex(char start){
+        for (auto f : graphmap){
+            if (f.first== start){
+                return true;
+            }
+        }
+        return false;
 
-    }
-     */
+    };
+    bool findEdge(char start, char final){
+
+        if (findVertex(start)){
+            for (auto f: graphmap[start]){
+                if (f.final== final) return true;
+            }
+        }
+        return false;
+
+    };
+
+
+
 
     float density(){
         //asumiendo dirigido
